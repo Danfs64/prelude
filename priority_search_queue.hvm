@@ -1,0 +1,61 @@
+// Based on Ralf Hinze's "A Simple Implementation Technique for Priority Search Queues" - 2001
+
+//* Type Definitions
+
+// type Bind<Key: Type, Prio: Type> {
+//     (k: Key, p: Prio)
+// }
+
+// Loser Tree - Ltree
+// type Ltree<Key: Type, Prio: Type> {
+//     Start
+//     Loser(
+//         bind: Bind<Key: Type, Prio: Type>,
+//         left: Ltree<Key: Type, Prio: Type>,
+//         split: Key,
+//         right: Ltree<Key: Type, Prio: Type>
+//     )
+// }
+
+// type PSQ<Key: Type, Prio: Type> {
+//     Empty
+//     Winner(
+//         bind: Bind<Key: Type, Prio: Type>,
+//         loser: Ltree<Key: Type, Prio: Type>,
+//         max: Key
+//     )
+// }
+
+
+//* "Getters"
+
+// Key(b: Bind<Key: Type, Prio: Type>) -> Key
+(Bind.key  (Bind k p)) = k
+// Prio(b: Bind<Key: Type, Prio: Type>) -> Prio
+(Bind.prio (Bind k p)) = p
+
+// PSQ.bind(pq: PSQ<Key: Type, Prio: Type>) -> Bind<Key: Type, Prio: Type>
+(PSQ.bind   (PSQ.Winner bind loser max)) = bind
+// MaxKey(pq: PSQ<Key: Type, Prio: Type>) -> Key
+(PSQ.maxKey (PSQ.Winner bind loser max)) = max
+
+
+//* PSQ Functions
+
+// Makes both Winners fight each other, returning the resulting winner with the loser in it's LoserTree
+// Fight(pq1: PSQ, pq2: PSQ) -> PSQ
+(PSQ.fight pq1 PSQ.Empty) = pq1
+(PSQ.fight PSQ.Empty pq2) = pq2
+(PSQ.fight pq1   pq2) = (PSQ.fight.aux (<= (Bind.prio (PSQ.bind pq1)) (Bind.prio (PSQ.bind pq2))) pq1 pq2)
+    (PSQ.fight.aux 1 (PSQ.Winner bind1 loser1 max1) (PSQ.Winner bind2 loser2 max2)) = (PSQ.Winner bind1 (Ltree.Loser bind2 loser1 max1 loser2) max2)
+    (PSQ.fight.aux 0 (PSQ.Winner bind1 loser1 max1) (PSQ.Winner bind2 loser2 max2)) = (PSQ.Winner bind2 (Ltree.Loser bind1 loser1 max1 loser2) max2)
+
+// TODO
+// Builds a PSQ from a list ORDERED BY KEYS
+// Not implemented YET, cause it requires foldm, which "folds a list in a binary-sub-division fashion"
+// PSQ.fromOrdList(xs: OrdList<Bind>) -> PSQ
+// (PSQ.fromOrdList xs) = ?a
+
+
+
+(Main) = (PSQ.fight (PSQ.Winner (Bind 2 8) Ltree.Start 2) (PSQ.Winner (Bind 5 1) Ltree.Start 5))
