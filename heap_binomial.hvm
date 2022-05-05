@@ -44,6 +44,8 @@
 (Pair.fst (Pair fst _)) = fst
 (Pair.snd (Pair _ snd)) = snd
 
+(Pair.get (Pair fst snd) fn) = (fn fst snd)
+
 // Decides if x is Greater, Lesser, or Equal to y
 (Battleship x y) = (Battleship.aux (< x y) (> x y))
     (Battleship.aux 1 _) = Lesser
@@ -60,12 +62,14 @@
 
 //* "Getters"
 
-// Rank(n: Node<Key>) -> Nat
-(Node.rank (Node rank root children)) = rank
-// Root(n: Node<Key>) -> Key
-(Node.root (Node rank root children)) = root
+// Rank(n: Node<Key>) -> Pair(Nat, Node)
+(Node.rank (Node rank root children)) = (Pair rank (Node rank root children))
+// Root(n: Node<Key>) -> Pair(Key, Node)
+(Node.root (Node rank root children)) = (Pair root (Node rank root children))
 // Children(n: Node<Key>) -> Heap<Key>
 (Node.children (Node rank root children)) = children
+// Children(n: Node<Key>) -> Pair(Key, Node)
+// (Node.children (Node rank root children)) = (Pair children (Node rank root children))
 
 
 //* Heap Functions
@@ -75,17 +79,25 @@
 //   - the other tree as one of its children
 //   - its rank increased by 1
 // Link(n1: Node, n2: Node) -> Node
-(Heap.link n1 n2) = (Heap.link.aux (<= (Node.root n1) (Node.root n2)) n1 n2)
-    (Heap.link.aux 1 (Node r1 x1 c1) n2) = (Node (+ r1 1) x1 (Cons n2 c1))
-    (Heap.link.aux 0 n1 (Node r2 x2 c2)) = (Node (+ r2 1) x2 (Cons n1 c2))
+(Heap.link n1 n2) =
+    (Pair.get (Node.root n1) @n1_root@n1_copy
+    (Pair.get (Node.root n2) @n2_root@n2_copy
+    (Heap.link.aux (<= n1_root n2_root) n1_copy n2_copy)))
+
+(Heap.link.aux 1 (Node r1 x1 c1) n2) = (Node (+ r1 1) x1 (Cons n2 c1))
+(Heap.link.aux 0 n1 (Node r2 x2 c2)) = (Node (+ r2 1) x2 (Cons n1 c2))
 
 // Inserts a Tree into the heap
 // P.S.: Do not call it manually, you could break the heap structure
 // InsertTree(new: Node, pq: Heap) -> Heap
 (InsertTree new  Nil)        = (Cons new Nil)
-(InsertTree new (Cons x xs)) = (InsertTree.aux (< (Node.rank new) (Node.rank x)) new (Cons x xs))
-    (InsertTree.aux 1 new  xs        ) = (Cons new xs)
-    (InsertTree.aux 0 new (Cons x xs)) = (InsertTree (Heap.link new x) xs)
+(InsertTree new (Cons x xs)) =
+    (Pair.get (Node.rank new) @new_rank@new_copy
+    (Pair.get (Node.rank x)   @x_rank  @x_copy 
+    (InsertTree.aux (< new_rank x_rank) new_copy (Cons x_copy xs))))
+
+(InsertTree.aux 1 new  xs        ) = (Cons new xs)
+(InsertTree.aux 0 new (Cons x xs)) = (InsertTree (Heap.link new x) xs)
 
 // Inserts a key into the heap
 // It does so by creating a Node with the key and calling InsertTree
@@ -97,11 +109,13 @@
 (Heap.merge pq Nil) = pq
 (Heap.merge Nil pq) = pq
 (Heap.merge (Cons x xs) (Cons y ys)) =
+    (Pair.get (Node.rank x) @x_rank@x_copy
+    (Pair.get (Node.rank y) @y_rank@y_copy
     (Heap.merge.aux
-        (Battleship (Node.rank x) (Node.rank y))
-        (Cons x xs)
-        (Cons y ys)
-    )
+        (Battleship x_rank y_rank)
+        (Cons x_copy xs)
+        (Cons y_copy ys)
+    )))
 
 (Heap.merge.aux Lesser  (Cons x xs) (Cons y ys)) = (Cons x (Heap.merge xs (Cons y ys)))
 (Heap.merge.aux Greater (Cons x xs) (Cons y ys)) = (Cons y (Heap.merge (Cons x xs) ys))
@@ -111,11 +125,15 @@
 // Returns Maybe.none if the heap is empty
 // FindMin(pq: Heap<Key>) -> Maybe<Key>
 (Heap.findMin  Nil)         =  Maybe.None
-(Heap.findMin (Cons t ts))  = (Maybe.Some (Heap.findMin.aux ts (Node.root t)))
-    (Heap.findMin.aux  Nil        n) = n
-    (Heap.findMin.aux (Cons t ts) n) =
-        let min = (Nat.min n (Node.root t))
-        (Heap.findMin.aux ts min)
+(Heap.findMin (Cons t ts))  =
+    let t_root = (Pair.fst (Node.root t))
+    (Maybe.Some (Heap.findMin.aux ts t_root))
+
+(Heap.findMin.aux  Nil        n) = n
+(Heap.findMin.aux (Cons t ts) n) =
+    let t_root = (Pair.fst (Node.root t))
+    let min    = (Nat.min n t_root)
+    (Heap.findMin.aux ts min)
 
 // Removes the minimal element of the heap
 // Returns an empty heap if the heap is already empty
@@ -127,6 +145,7 @@
     let new_pq  = (Pair.snd get_min)
     (Heap.merge (List.reverse (Node.children removed)) new_pq)
 
+// TODO rec might benefit from the Pair.get strategy?
 // Returns a pair of:
 //   - the tree with the minimal element;
 //   - the input heap without said tree;
@@ -134,7 +153,10 @@
 (Heap.getMin (Cons x Nil)) = (Pair x Nil)
 (Heap.getMin (Cons x xs )) =
     let rec = (Heap.getMin xs)
-    (Heap.getMin.aux (<= (Node.root x) (Node.root (Pair.fst rec))) (Cons x xs) rec)
+    let rec_node = (Pair.fst rec)
+    (Pair.get (Node.root x)        @x_root  @x_copy
+    (Pair.get (Node.root rec_node) @rec_root@rec_copy
+    (Heap.getMin.aux (<= x_root rec_root) (Cons x_copy xs) rec)))
 
 (Heap.getMin.aux 1 (Cons x xs) rec) = (Pair x xs)
 (Heap.getMin.aux 0 (Cons x xs) rec) = 
@@ -158,8 +180,8 @@
 
     // Testing Constructors/Functions
     // heap2
-    heapmaster
-    // (Heap.findMin heapmaster)
+    // heapmaster
+    (Heap.findMin heapmaster)
     // (Heap.deleteMin heapmaster)
 
     // "Benchmarking"
