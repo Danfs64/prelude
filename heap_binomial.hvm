@@ -62,13 +62,13 @@
 
 //* "Getters"
 
-// Rank(n: Node<Key>) -> Pair(Nat, Node)
+// Rank(n: Node<Key>) -> Pair(Nat, Node<Key>)
 (Node.rank (Node rank root children)) = (Pair rank (Node rank root children))
-// Root(n: Node<Key>) -> Pair(Key, Node)
+// Root(n: Node<Key>) -> Pair(Key, Node<Key>)
 (Node.root (Node rank root children)) = (Pair root (Node rank root children))
 // Children(n: Node<Key>) -> Heap<Key>
 (Node.children (Node rank root children)) = children
-// Children(n: Node<Key>) -> Pair(Key, Node)
+// Children(n: Node<Key>) -> Pair(Heap<Key>, Node<Key>)
 // (Node.children (Node rank root children)) = (Pair children (Node rank root children))
 
 
@@ -124,8 +124,8 @@
 // Finds the minimal element of the heap
 // Returns Maybe.none if the heap is empty
 // FindMin(pq: Heap<Key>) -> Maybe<Key>
-(Heap.findMin  Nil)         =  Maybe.None
-(Heap.findMin (Cons t ts))  =
+(Heap.findMin  Nil       ) = Maybe.None
+(Heap.findMin (Cons t ts)) =
     let t_root = (Pair.fst (Node.root t))
     (Maybe.Some (Heap.findMin.aux ts t_root))
 
@@ -173,26 +173,24 @@
 
 (Main n) =
     // Some vars
-    let heap1 = (Heap.fromList [1,2,3,4,5])
-    let heap2 = (Heap.fromList [6,7,8,9,10,11,12])
-    let heap3 = (Heap.fromList [0,13,14,15,16,17])
-    let heapmaster = (Heap.merge heap3 (Heap.merge heap1 heap2))
+    // let heap1 = (Heap.fromList [1,2,3,4,5])
+    // let heap2 = (Heap.fromList [6,7,8,9,10,11,12])
+    // let heap3 = (Heap.fromList [0,13,14,15,16,17])
+    // let heapmaster = (Heap.merge heap3 (Heap.merge heap1 heap2))
 
     // Testing Constructors/Functions
     // heap2
     // heapmaster
-    (Heap.findMin heapmaster)
+    // (Heap.findMin heapmaster)
     // (Heap.deleteMin heapmaster)
 
     // "Benchmarking"
-    // (Heap.fromList (DecRange 10))     //      572 RW,      723 Mem Size
-    // (Heap.fromList (DecRange 100))    //    13844 RW,    15816 Mem Size
-    // (Heap.fromList (DecRange 1000))   //   230627 RW,   267046 Mem Size
-    // (Heap.fromList (DecRange 10000))  //  3969306 RW,  4663518 Mem Size
+    // (Heap.fromList (DecRange 10))     //      352 RW,      253 Mem Size
+    // (Heap.fromList (DecRange 100))    //     4339 RW,     2563 Mem Size
+    // (Heap.fromList (DecRange 1000))   //    44722 RW,    25909 Mem Size
+    // (Heap.fromList (DecRange 10000))  //   449701 RW,   259897 Mem Size
     // (Heap.fromList (DecRange 100000)) // 56346413 RW, 66616128 Mem Size
-    // Expected complexity for Heap.fromList is O(n*log(n)), because it calls Insertion (O(log n)) n times.
-    // As such, having the rewrites increase 20x when incresing the input 10x makes sense
 
     // General use
-    // (Heap.fromList (DecRange n))
+    (Heap.fromList (DecRange n))
     // (Heap.findMin (Heap.fromList (DecRange n)))
