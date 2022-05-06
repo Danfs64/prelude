@@ -44,7 +44,7 @@
 (Pair.fst (Pair fst _)) = fst
 (Pair.snd (Pair _ snd)) = snd
 
-(Pair.get (Pair fst snd) fn) = (fn fst snd)
+(Pair.apply (Pair fst snd) fn) = (fn fst snd)
 
 // Decides if x is Greater, Lesser, or Equal to y
 (Battleship x y) = (Battleship.aux (< x y) (> x y))
@@ -80,8 +80,8 @@
 //   - its rank increased by 1
 // Link(n1: Node, n2: Node) -> Node
 (Heap.link n1 n2) =
-    (Pair.get (Node.root n1) @n1_root@n1_copy
-    (Pair.get (Node.root n2) @n2_root@n2_copy
+    (Pair.apply (Node.root n1) @n1_root@n1_copy
+    (Pair.apply (Node.root n2) @n2_root@n2_copy
     (Heap.link.aux (<= n1_root n2_root) n1_copy n2_copy)))
 
 (Heap.link.aux 1 (Node r1 x1 c1) n2) = (Node (+ r1 1) x1 (Cons n2 c1))
@@ -92,8 +92,8 @@
 // InsertTree(new: Node, pq: Heap) -> Heap
 (InsertTree new  Nil)        = (Cons new Nil)
 (InsertTree new (Cons x xs)) =
-    (Pair.get (Node.rank new) @new_rank@new_copy
-    (Pair.get (Node.rank x)   @x_rank  @x_copy 
+    (Pair.apply (Node.rank new) @new_rank@new_copy
+    (Pair.apply (Node.rank x)   @x_rank  @x_copy 
     (InsertTree.aux (< new_rank x_rank) new_copy (Cons x_copy xs))))
 
 (InsertTree.aux 1 new  xs        ) = (Cons new xs)
@@ -109,8 +109,8 @@
 (Heap.merge pq Nil) = pq
 (Heap.merge Nil pq) = pq
 (Heap.merge (Cons x xs) (Cons y ys)) =
-    (Pair.get (Node.rank x) @x_rank@x_copy
-    (Pair.get (Node.rank y) @y_rank@y_copy
+    (Pair.apply (Node.rank x) @x_rank@x_copy
+    (Pair.apply (Node.rank y) @y_rank@y_copy
     (Heap.merge.aux
         (Battleship x_rank y_rank)
         (Cons x_copy xs)
@@ -141,11 +141,9 @@
 (Heap.deleteMin Nil) = Nil
 (Heap.deleteMin pq)  =
     let get_min = (Heap.getMin pq)
-    let removed = (Pair.fst get_min)
-    let new_pq  = (Pair.snd get_min)
-    (Heap.merge (List.reverse (Node.children removed)) new_pq)
+    (Pair.apply get_min @removed@new_pq
+    (Heap.merge (List.reverse (Node.children removed)) new_pq))
 
-// TODO rec might benefit from the Pair.get strategy?
 // Returns a pair of:
 //   - the tree with the minimal element;
 //   - the input heap without said tree;
@@ -154,15 +152,14 @@
 (Heap.getMin (Cons x xs )) =
     let rec = (Heap.getMin xs)
     let rec_node = (Pair.fst rec)
-    (Pair.get (Node.root x)        @x_root  @x_copy
-    (Pair.get (Node.root rec_node) @rec_root@rec_copy
+    (Pair.apply (Node.root x)        @x_root  @x_copy
+    (Pair.apply (Node.root rec_node) @rec_root@rec_copy
     (Heap.getMin.aux (<= x_root rec_root) (Cons x_copy xs) rec)))
 
 (Heap.getMin.aux 1 (Cons x xs) rec) = (Pair x xs)
 (Heap.getMin.aux 0 (Cons x xs) rec) = 
-    let rec_node = (Pair.fst rec)
-    let rec_pq = (Pair.snd rec) 
-    (Pair rec_node (Cons x rec_pq))
+    (Pair.apply rec @node@pq
+    (Pair node (Cons x pq)))
 
 // Creates a heap using a list of natural numbers
 // Heap.fromList(xs: List<Key>) -> Heap<Key>
@@ -173,10 +170,10 @@
 
 (Main n) =
     // Some vars
-    // let heap1 = (Heap.fromList [1,2,3,4,5])
-    // let heap2 = (Heap.fromList [6,7,8,9,10,11,12])
-    // let heap3 = (Heap.fromList [0,13,14,15,16,17])
-    // let heapmaster = (Heap.merge heap3 (Heap.merge heap1 heap2))
+    let heap1 = (Heap.fromList [1,2,3,4,5])
+    let heap2 = (Heap.fromList [6,7,8,9,10,11,12])
+    let heap3 = (Heap.fromList [0,13,14,15,16,17])
+    let heapmaster = (Heap.merge heap3 (Heap.merge heap1 heap2))
 
     // Testing Constructors/Functions
     // heap2
@@ -192,5 +189,6 @@
     // (Heap.fromList (DecRange 100000)) // 56346413 RW, 66616128 Mem Size
 
     // General use
-    (Heap.fromList (DecRange n))
+    // (Heap.fromList (DecRange n))
     // (Heap.findMin (Heap.fromList (DecRange n)))
+    // (Heap.deleteMin (Heap.deleteMin (Heap.deleteMin (Heap.deleteMin heapmaster))))
