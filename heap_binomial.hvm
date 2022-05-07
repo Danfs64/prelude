@@ -62,13 +62,13 @@
 
 //* "Getters"
 
-// Rank(n: Node<Key>) -> Pair(Nat, Node<Key>)
+// Rank(n: Node<Key>) -> Pair<Nat, Node<Key>>
 (Node.rank (Node rank root children)) = (Pair rank (Node rank root children))
-// Root(n: Node<Key>) -> Pair(Key, Node<Key>)
+// Root(n: Node<Key>) -> Pair<Key, Node<Key>>
 (Node.root (Node rank root children)) = (Pair root (Node rank root children))
 // Children(n: Node<Key>) -> Heap<Key>
 (Node.children (Node rank root children)) = children
-// Children(n: Node<Key>) -> Pair(Heap<Key>, Node<Key>)
+// Children(n: Node<Key>) -> Pair<Heap<Key>, Node<Key>>
 // (Node.children (Node rank root children)) = (Pair children (Node rank root children))
 
 
@@ -129,17 +129,17 @@
     let t_root = (Pair.fst (Node.root t))
     (Maybe.Some (Heap.findMin.aux ts t_root))
 
-(Heap.findMin.aux  Nil        n) = n
-(Heap.findMin.aux (Cons t ts) n) =
-    let t_root = (Pair.fst (Node.root t))
-    let min    = (Nat.min n t_root)
-    (Heap.findMin.aux ts min)
+(Heap.findMin.aux  Nil        key) = key
+(Heap.findMin.aux (Cons t ts) key) =
+    let t_root  = (Pair.fst (Node.root t))
+    let min_key = (Nat.min key t_root)
+    (Heap.findMin.aux ts min_key)
 
 // Removes the minimal element of the heap
 // Returns an empty heap if the heap is already empty
 // DeleteMin(pq: Heap) -> Heap
 (Heap.deleteMin Nil) = Nil
-(Heap.deleteMin pq)  =
+(Heap.deleteMin pq ) =
     let get_min = (Heap.getMin pq)
     (Pair.apply get_min @removed@new_pq
     (Heap.merge (List.reverse (Node.children removed)) new_pq))
@@ -150,11 +150,11 @@
 // GetMin(pq: Heap<Key>) -> Pair<Node<Key>,Heap<Key>>
 (Heap.getMin (Cons x Nil)) = (Pair x Nil)
 (Heap.getMin (Cons x xs )) =
-    let rec = (Heap.getMin xs)
-    let rec_node = (Pair.fst rec)
-    (Pair.apply (Node.root x)        @x_root  @x_copy
-    (Pair.apply (Node.root rec_node) @rec_root@rec_copy
-    (Heap.getMin.aux (<= x_root rec_root) (Cons x_copy xs) rec)))
+    let rec      = (Heap.getMin xs)
+    let rec_root = (Pair.fst (Node.root (Pair.fst rec)))
+
+    (Pair.apply (Node.root x) @x_root@x_copy
+    (Heap.getMin.aux (<= x_root rec_root) (Cons x_copy xs) rec))
 
 (Heap.getMin.aux 1 (Cons x xs) rec) = (Pair x xs)
 (Heap.getMin.aux 0 (Cons x xs) rec) = 
@@ -167,6 +167,14 @@
     (Heap.fromList.aux  Nil        pq) = pq
     (Heap.fromList.aux (Cons x xs) pq) = (Heap.fromList.aux xs (Heap.insert x pq))
 
+// Deletes the 'n' minimal values from the heap
+// DeleteMin.repeat(n: Nat, pq: Heap) -> Heap
+(Heap.deleteMin.repeat 0 pq) = pq
+(Heap.deleteMin.repeat n pq) =
+    let dec = (- n 1)
+    let pq2 = (Heap.deleteMin pq)
+    (Heap.deleteMin.repeat dec pq2)
+
 
 (Main n) =
     // Some vars
@@ -176,7 +184,6 @@
     let heapmaster = (Heap.merge heap3 (Heap.merge heap1 heap2))
 
     // Testing Constructors/Functions
-    // heap2
     // heapmaster
     // (Heap.findMin heapmaster)
     // (Heap.deleteMin heapmaster)
@@ -186,9 +193,9 @@
     // (Heap.fromList (DecRange 100))    //     4339 RW,     2563 Mem Size
     // (Heap.fromList (DecRange 1000))   //    44722 RW,    25909 Mem Size
     // (Heap.fromList (DecRange 10000))  //   449701 RW,   259897 Mem Size
-    // (Heap.fromList (DecRange 100000)) // 56346413 RW, 66616128 Mem Size
+    // (Heap.fromList (DecRange 100000)) //  4499638 RW,  2599867 Mem Size
 
     // General use
-    // (Heap.fromList (DecRange n))
+    (Heap.fromList (DecRange n))
     // (Heap.findMin (Heap.fromList (DecRange n)))
-    // (Heap.deleteMin (Heap.deleteMin (Heap.deleteMin (Heap.deleteMin heapmaster))))
+    // (Heap.deleteMin.repeat n (Heap.fromList (DecRange n)))
