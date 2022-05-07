@@ -128,15 +128,11 @@
 // FindMinNode(pq: Heap<Key>) -> Pair<Nat, Key>
 (Heap.findMinNode  Nil       ) = Error.EmptyHeap
 (Heap.findMinNode (Cons x xs)) =
-    // let x_rank = (Pair.fst (Node.rank x))
-    // let x_root = (Pair.fst (Node.root x))
     (Pair.apply (Node.rank_root x) @x_rank @x_root
     (Heap.findMinNode.aux xs (Pair x_rank x_root)))
 
 (Heap.findMinNode.aux  Nil        min_pair) = min_pair
 (Heap.findMinNode.aux (Cons x xs) min_pair) =
-    // let x_rank = (Pair.fst (Node.rank x))
-    // let x_root = (Pair.fst (Node.root x))
     (Pair.apply (Node.rank_root x) @x_rank @x_root
     (Heap.findMinNode.aux2 (< x_root (Pair.fst min_pair)) xs min_pair (Pair x_rank x_root)))
 
