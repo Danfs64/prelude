@@ -128,8 +128,7 @@
 // FindMinNode(pq: Heap<Key>) -> Pair<Nat, Key>
 (Heap.findMinNode  Nil       ) = Error.EmptyHeap
 (Heap.findMinNode (Cons x xs)) =
-    (Pair.apply (Node.rank_root x) @x_rank @x_root
-    (Heap.findMinNode.aux xs (Pair x_rank x_root)))
+    (Heap.findMinNode.aux xs (Node.rank_root x))
 
 (Heap.findMinNode.aux  Nil        min_pair) = min_pair
 (Heap.findMinNode.aux (Cons x xs) min_pair) =
@@ -184,28 +183,27 @@
     (Heap.deleteMin.repeat dec pq2)
 
 
-(Main n) =
+(Main) =
     // Some vars
     // let heap1 = (Heap.fromList [1,2,3,4,5])
     // let heap2 = (Heap.fromList [6,7,8,9,10,11,12])
     // let heap3 = (Heap.fromList [0,13,14,15,16,17])
     // let heapmaster = (Heap.merge heap3 (Heap.merge heap1 heap2))
-    let heapmaster = [(Node 1 16 [(Node 0 17 [])]), (Node 4 0 [(Node 3 1 [(Node 2 6 [(Node 1 8 [(Node 0 9 [])]), (Node 0 7 [])]), (Node 1 3 [(Node 0 4 [])]), (Node 0 2 [])]), (Node 2 5 [(Node 1 10 [(Node 0 11 [])]), (Node 0 12 [])]), (Node 1 14 [(Node 0 15 [])]), (Node 0 13 [])])]
-    // let heap0_99 = [(Node 2 0 [(Node 1 2 [(Node 0 3 [])]), (Node 0 1 [])]), (Node 5 4 [(Node 4 20 [(Node 3 28 [(Node 2 32 [(Node 1 34 [(Node 0 35 [])]), (Node 0 33 [])]), (Node 1 30 [(Node 0 31 [])]), (Node 0 29 [])]), (Node 2 24 [(Node 1 26 [(Node 0 27 [])]), (Node 0 25 [])]), (Node 1 22 [(Node 0 23 [])]), (Node 0 21 [])]), (Node 3 12 [(Node 2 16 [(Node 1 18 [(Node 0 19 [])]), (Node 0 17 [])]), (Node 1 14 [(Node 0 15 [])]), (Node 0 13 [])]), (Node 2 8 [(Node 1 10 [(Node 0 11 [])]), (Node 0 9 [])]), (Node 1 6 [(Node 0 7 [])]), (Node 0 5 [])]), (Node 6 36 [(Node 5 68 [(Node 4 84 [(Node 3 92 [(Node 2 96 [(Node 1 98 [(Node 0 99 [])]), (Node 0 97 [])]), (Node 1 94 [(Node 0 95 [])]), (Node 0 93 [])]), (Node 2 88 [(Node 1 90 [(Node 0 91 [])]), (Node 0 89 [])]), (Node 1 86 [(Node 0 87 [])]), (Node 0 85 [])]), (Node 3 76 [(Node 2 80 [(Node 1 82 [(Node 0 83 [])]), (Node 0 81 [])]), (Node 1 78 [(Node 0 79 [])]), (Node 0 77 [])]), (Node 2 72 [(Node 1 74 [(Node 0 75 [])]), (Node 0 73 [])]), (Node 1 70 [(Node 0 71 [])]), (Node 0 69 [])]), (Node 4 52 [(Node 3 60 [(Node 2 64 [(Node 1 66 [(Node 0 67 [])]), (Node 0 65 [])]), (Node 1 62 [(Node 0 63 [])]), (Node 0 61 [])]), (Node 2 56 [(Node 1 58 [(Node 0 59 [])]), (Node 0 57 [])]), (Node 1 54 [(Node 0 55 [])]), (Node 0 53 [])]), (Node 3 44 [(Node 2 48 [(Node 1 50 [(Node 0 51 [])]), (Node 0 49 [])]), (Node 1 46 [(Node 0 47 [])]), (Node 0 45 [])]), (Node 2 40 [(Node 1 42 [(Node 0 43 [])]), (Node 0 41 [])]), (Node 1 38 [(Node 0 39 [])]), (Node 0 37 [])])]
-
-    // Testing Constructors/Functions
-    // (heapmaster)
-    // (Heap.findMin heapmaster)
-    // (Heap.deleteMin heapmaster)
+    // let heapmaster = [(Node 1 16 [(Node 0 17 [])]), (Node 4 0 [(Node 3 1 [(Node 2 6 [(Node 1 8 [(Node 0 9 [])]), (Node 0 7 [])]), (Node 1 3 [(Node 0 4 [])]), (Node 0 2 [])]), (Node 2 5 [(Node 1 10 [(Node 0 11 [])]), (Node 0 12 [])]), (Node 1 14 [(Node 0 15 [])]), (Node 0 13 [])])]
+    let heap0_99 = [(Node 2 0 [(Node 1 2 [(Node 0 3 [])]), (Node 0 1 [])]), (Node 5 4 [(Node 4 20 [(Node 3 28 [(Node 2 32 [(Node 1 34 [(Node 0 35 [])]), (Node 0 33 [])]), (Node 1 30 [(Node 0 31 [])]), (Node 0 29 [])]), (Node 2 24 [(Node 1 26 [(Node 0 27 [])]), (Node 0 25 [])]), (Node 1 22 [(Node 0 23 [])]), (Node 0 21 [])]), (Node 3 12 [(Node 2 16 [(Node 1 18 [(Node 0 19 [])]), (Node 0 17 [])]), (Node 1 14 [(Node 0 15 [])]), (Node 0 13 [])]), (Node 2 8 [(Node 1 10 [(Node 0 11 [])]), (Node 0 9 [])]), (Node 1 6 [(Node 0 7 [])]), (Node 0 5 [])]), (Node 6 36 [(Node 5 68 [(Node 4 84 [(Node 3 92 [(Node 2 96 [(Node 1 98 [(Node 0 99 [])]), (Node 0 97 [])]), (Node 1 94 [(Node 0 95 [])]), (Node 0 93 [])]), (Node 2 88 [(Node 1 90 [(Node 0 91 [])]), (Node 0 89 [])]), (Node 1 86 [(Node 0 87 [])]), (Node 0 85 [])]), (Node 3 76 [(Node 2 80 [(Node 1 82 [(Node 0 83 [])]), (Node 0 81 [])]), (Node 1 78 [(Node 0 79 [])]), (Node 0 77 [])]), (Node 2 72 [(Node 1 74 [(Node 0 75 [])]), (Node 0 73 [])]), (Node 1 70 [(Node 0 71 [])]), (Node 0 69 [])]), (Node 4 52 [(Node 3 60 [(Node 2 64 [(Node 1 66 [(Node 0 67 [])]), (Node 0 65 [])]), (Node 1 62 [(Node 0 63 [])]), (Node 0 61 [])]), (Node 2 56 [(Node 1 58 [(Node 0 59 [])]), (Node 0 57 [])]), (Node 1 54 [(Node 0 55 [])]), (Node 0 53 [])]), (Node 3 44 [(Node 2 48 [(Node 1 50 [(Node 0 51 [])]), (Node 0 49 [])]), (Node 1 46 [(Node 0 47 [])]), (Node 0 45 [])]), (Node 2 40 [(Node 1 42 [(Node 0 43 [])]), (Node 0 41 [])]), (Node 1 38 [(Node 0 39 [])]), (Node 0 37 [])])]
 
     // "Benchmarking"
-    // (Heap.fromList (DecRange 10))     //      352 RW,      253 Mem Size
-    // (Heap.fromList (DecRange 100))    //     4339 RW,     2563 Mem Size
-    // (Heap.fromList (DecRange 1000))   //    44722 RW,    25909 Mem Size
-    // (Heap.fromList (DecRange 10000))  //   449701 RW,   259897 Mem Size
-    // (Heap.fromList (DecRange 100000)) //  4499638 RW,  2599867 Mem Size
+    // (Heap.fromList (DecRange     10)) //      352 RW,     103 Mem Size
+    // (Heap.fromList (DecRange    100)) //     4339 RW,     553 Mem Size
+    // (Heap.fromList (DecRange   1000)) //    44722 RW,    5053 Mem Size
+    // (Heap.fromList (DecRange  10000)) //   449701 RW,   50053 Mem Size
+    // (Heap.fromList (DecRange 100000)) //  4499638 RW,       ? Mem Size
+
+    // (Heap.deleteMin.repeat     10 (Heap.fromList (DecRange     10))) //       954 RW,      286 Mem Size
+    // (Heap.deleteMin.repeat    100 (Heap.fromList (DecRange    100))) //     33264 RW,     9697 Mem Size
+    // (Heap.deleteMin.repeat   1000 (Heap.fromList (DecRange   1000))) //   2381617 RW,   776856 Mem Size
+    // (Heap.deleteMin.repeat  10000 (Heap.fromList (DecRange  10000))) // 226493712 RW, 75313881 Mem Size
+    // (Heap.deleteMin.repeat 100000 (Heap.fromList (DecRange 100000))) //         x RW,        x Mem Size - Seg Fault :clown:
 
     // General use
-    // (Heap.fromList (DecRange n))
-    // (Heap.findMin (Heap.fromList (DecRange n)))
-    (Heap.deleteMin.repeat n heapmaster)
+    // (Heap.deleteMin.repeat n heap0_99)
